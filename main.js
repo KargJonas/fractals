@@ -11,18 +11,6 @@ let HEIGHT = 0;
 let HALF_WIDTH = 0;
 let HALF_HEIGHT = 0;
 
-function max() {
-  WIDTH = window.innerWidth;
-  HEIGHT = window.innerHeight;
-  HALF_WIDTH = WIDTH / 2;
-  HALF_HEIGHT = HEIGHT / 2;
-  cnv.setAttribute("width", WIDTH);
-  cnv.setAttribute("height", HEIGHT);
-}
-
-max();
-window.addEventListener("resize", max);
-
 function getPoints(x, y, r) {
   // Side-length of the new triangle
   const a = r * SQRT_3;
@@ -57,6 +45,9 @@ function step(triangles, depth, r) {
   return step(temp, depth - 1, r);
 }
 
+// ? Maybe i could fix the spacing-issue by calculating
+// ? the next layer but duplicating the radius
+// ? (kinda hacky & unprofessional)
 function draw(positions) {
   positions.map(_positions => {
     // Deep clone
@@ -86,18 +77,33 @@ function draw(positions) {
 }
 
 const radius = 0.4;
-const depth = 8;
+const depth = 5;
 
-// We do all the math and drawing in here so it
-// does not jam up the website
+// We do all the math and drawing in here and then
+// run this in an animation-frame that it does not
+// jam up the website
 function doStuff() {
+  // Calculating all of the positions of the triangles
   const points = step(
     [getPoints(0, 0, radius)], // The starting positions
     depth, // Fractal depth
     radius // Initial circumradius (distance from center to the edges of a triangle)
   );
 
+  // Drawing the triangles from the positions
   draw(points);
 }
 
-window.requestAnimationFrame(doStuff);
+// Scaling the canvas
+function max() {
+  WIDTH = window.innerWidth;
+  HEIGHT = window.innerHeight;
+  HALF_WIDTH = WIDTH / 2;
+  HALF_HEIGHT = HEIGHT / 2;
+  cnv.setAttribute("width", WIDTH);
+  cnv.setAttribute("height", HEIGHT);
+  window.requestAnimationFrame(doStuff);
+}
+
+max();
+window.addEventListener("resize", max);
